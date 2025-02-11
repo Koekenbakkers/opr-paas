@@ -84,7 +84,7 @@ func assertGroupCreatedAfterUpdate(ctx context.Context, t *testing.T, cfg *envco
 	paas := getPaas(ctx, paasWithGroups, t, cfg)
 	paas.Spec.Groups[secondGroupKey] = api.PaasGroup{
 		Roles: []string{"viewer"},
-		Users: []string{"bar"},
+		Users: []string{"alice"},
 	}
 
 	if err := updateSync(ctx, cfg, paas, api.TypeReadyPaas); err != nil {
@@ -98,7 +98,7 @@ func assertGroupCreatedAfterUpdate(ctx context.Context, t *testing.T, cfg *envco
 
 	assert.Equal(t, paas.GroupKey2GroupName(secondGroupKey), group2.Name)
 	// Defined user is in group
-	assert.Equal(t, "[bar]", group2.Users.String())
+	assert.Equal(t, "[alice]", group2.Users.String())
 	// Correct labels are defined
 	assert.Len(t, group2.Labels, 1)
 	assert.Equal(t, "paas", group2.Labels["app.kubernetes.io/managed-by"], "Labeled as managed by Paas")
@@ -124,7 +124,7 @@ func assertOldGroupRemovedAfterUpdatingKey(ctx context.Context, t *testing.T, cf
 	paas := getPaas(ctx, paasWithGroups, t, cfg)
 	paas.Spec.Groups = api.PaasGroups{groupKey: api.PaasGroup{Users: []string{"foo"}}, updatedSecondGroupKey: api.PaasGroup{
 		Roles: []string{"viewer"},
-		Users: []string{"bar"},
+		Users: []string{"alice"},
 	}}
 
 	if err := updateSync(ctx, cfg, paas, api.TypeReadyPaas); err != nil {
@@ -141,7 +141,7 @@ func assertOldGroupRemovedAfterUpdatingKey(ctx context.Context, t *testing.T, cf
 	// Group name matches the one defined in the Paas
 	assert.Equal(t, paas.GroupKey2GroupName(updatedSecondGroupKey), updatedGroup2.Name)
 	// Defined user is in group
-	assert.Equal(t, "[bar]", updatedGroup2.Users.String())
+	assert.Equal(t, "[alice]", updatedGroup2.Users.String())
 	// Correct labels are defined
 	assert.Len(t, updatedGroup2.Labels, 1)
 	assert.NotContains(t, "openshift.io/ldap.host", updatedGroup2.Labels)
